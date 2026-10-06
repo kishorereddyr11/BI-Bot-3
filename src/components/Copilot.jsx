@@ -7,6 +7,7 @@ import data from '../data/answers.json'
 const { categories: CATS, questions: QS } = data
 const CAT = Object.fromEntries(CATS.map((c) => [c.id, c]))
 const QBY = Object.fromEntries(QS.map((q) => [q.id, q]))
+const SIDE_MIN = 280, SIDE_MAX = 640
 const BADGE = { Popular: 'amber', Trend: 'cyan', Key: 'violet', New: 'emerald' }
 
 function Hl({ text, term }) {
@@ -113,7 +114,20 @@ function Welcome({ ask }) {
 }
 
 export default function Copilot({ messages, ask, clear, asked, busy, active, drawer, setDrawer, refreshKey }) {
-  const chat = useRef(null)
+  const chat = useRef(null), root = useRef(null)
+  const [sideW, setSideW] = useState(() => { try { const v = +localStorage.getItem('bi-side-w'); if (v >= SIDE_MIN && v <= SIDE_MAX) return v } catch {} return window.innerWidth <= 1280 ? 350 : 410 })
+  const saveW = (w) => { setSideW(w); try { localStorage.setItem('bi-side-w', String(w)) } catch {} }
+  const startDrag = (e) => {
+    const el = root.current; if (!el) return
+    e.preventDefault(); e.currentTarget.setPointerCapture(e.pointerId)
+    const rect = el.getBoundingClientRect(), scale = rect.width / el.offsetWidth || 1 // page is CSS-scaled; convert pointer px to layout px
+    let w = sideW, raf = 0
+    el.classList.add('resizing')
+    const move = (ev) => { w = Math.round(Math.min(SIDE_MAX, Math.max(SIDE_MIN, (ev.clientX - rect.left) / scale))); cancelAnimationFrame(raf); raf = requestAnimationFrame(() => el.style.setProperty('--side-w', w + 'px')) }
+    const up = () => { cancelAnimationFrame(raf); el.style.setProperty('--side-w', w + 'px'); el.classList.remove('resizing'); saveW(w); window.removeEventListener('pointermove', move); window.removeEventListener('pointerup', up); window.removeEventListener('pointercancel', up) }
+    window.addEventListener('pointermove', move); window.addEventListener('pointerup', up); window.addEventListener('pointercancel', up)
+  }
+  const keyResize = (e) => { const d = e.key === 'ArrowLeft' ? -24 : e.key === 'ArrowRight' ? 24 : 0; if (d) { e.preventDefault(); saveW(Math.min(SIDE_MAX, Math.max(SIDE_MIN, sideW + d))) } }
   useEffect(() => {
     const el = chat.current; if (!el || !messages.length) return
     const lastUser = [...el.querySelectorAll('[data-user]')].pop()
@@ -125,8 +139,9 @@ export default function Copilot({ messages, ask, clear, asked, busy, active, dra
     return pool.slice(0, 4)
   }, [active, asked])
   return (
-    <div className="copilot">
+    <div className="copilot" ref={root} style={{ '--side-w': sideW + 'px' }}>
       <Sidebar ask={ask} asked={asked} active={active} busy={busy} open={drawer} close={() => setDrawer(false)} />
+      <div className="side-resizer" role="separator" aria-orientation="vertical" aria-label="Resize question library (drag, or use arrow keys; double-click to reset)" tabIndex={0} onPointerDown={startDrag} onKeyDown={keyResize} onDoubleClick={() => saveW(410)} />
       {drawer && <div className="scrim" onClick={() => setDrawer(false)} />}
       <section className="chat">
         <button className="fab only-mobile" onClick={() => setDrawer(true)}><Icon name="MessageSquare" size={18} />Questions</button>
