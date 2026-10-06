@@ -122,7 +122,7 @@ export default function Copilot({ messages, ask, clear, asked, busy, active, dra
   const suggestions = useMemo(() => {
     const lastQ = active ? QBY[active] : null
     const pool = lastQ ? QS.filter((q) => q.cat === lastQ.cat && !asked.has(q.id)).concat(QS.filter((q) => q.cat !== lastQ.cat && q.badge && !asked.has(q.id))) : QS.filter((q) => q.badge === 'Popular')
-    return pool.slice(0, 8)
+    return pool.slice(0, 4)
   }, [active, asked])
   return (
     <div className="copilot">
@@ -141,7 +141,7 @@ export default function Copilot({ messages, ask, clear, asked, busy, active, dra
         </div>
         <div className="composer">
           <div className="suggest"><span className="suggest-title"><Icon name="Lightbulb" size={14} />{active ? 'Ask next' : 'Suggested questions'}</span>
-            <div className="chips">{suggestions.map((q) => <button key={q.id} className="chip-q" disabled={busy} onClick={() => ask(q.id)}><Icon name="Sparkles" size={13} />{q.q}</button>)}</div></div>
+            <div className="chips">{suggestions.map((q) => <button key={q.id} className="chip-q" disabled={busy} onClick={() => ask(q.id)}><Icon name="Sparkles" size={13} /><span className="chip-t">{q.q}</span></button>)}</div></div>
           <div className="input-row">
             <div className="input-fake" aria-disabled="true"><Icon name="Lock" size={15} /><input disabled placeholder="Select a question from the Question Library to analyze…" /></div>
             <button className="send" disabled aria-label="Send"><Icon name="Send" size={18} /></button>
