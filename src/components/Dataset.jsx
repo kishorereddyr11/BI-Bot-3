@@ -10,7 +10,7 @@ const label = (n) => n.replace(/_/g, ' ')
 
 async function loadTable(name) {
   if (cache.has(name)) return cache.get(name)
-  const res = await fetch(`/data/${name}.json`); if (!res.ok) throw new Error(`Could not load ${name}`)
+  const res = await fetch(`${import.meta.env.BASE_URL}data/${name}.json`); if (!res.ok) throw new Error(`Could not load ${name}`)
   const d = await res.json(); d.search = null; cache.set(name, d); return d
 }
 const isNum = (v) => typeof v === 'number'

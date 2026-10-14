@@ -5,8 +5,8 @@ import Icon from '../icons.jsx'
 const TABS = [['copilot', 'Copilot', 'Bot'], ['dashboard', 'Dashboard', 'BarChart3'], ['dataset', 'Dataset', 'Database']]
 
 export function Logo() {
-  const [src, setSrc] = useState('/logo.png')
-  return <img className="logo-img" src={src} alt="Infinyty" onError={() => src !== '/logo.webp' && setSrc('/logo.webp')} draggable="false" />
+  const [src, setSrc] = useState(`${import.meta.env.BASE_URL}logo.png`)
+  return <img className="logo-img" src={src} alt="Infinyty" onError={() => src !== `${import.meta.env.BASE_URL}logo.webp` && setSrc(`${import.meta.env.BASE_URL}logo.webp`)} draggable="false" />
 }
 
 export default function Header({ tab, setTab, onRefresh, spinning }) {
