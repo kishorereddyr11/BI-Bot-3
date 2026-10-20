@@ -3,6 +3,9 @@
 Conversational-style analytics demo on a dummy HR workbook: **98 fixed questions** (each = chart + key numbers + plain-English explanation), a **15-chart dashboard** and a **34-table dataset browser**. No backend — a static site.
 
 ## Run
+**Windows, one command:** `.\start.bat` — installs Node.js LTS via winget if it's missing, runs `npm install` on first run, then starts the app and opens the browser.
+
+Manually:
 ```bash
 npm install
 npm run dev        # http://localhost:5173
